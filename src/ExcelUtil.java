@@ -56,9 +56,6 @@ public class ExcelUtil {
 				Input input = new Input();
 				input.question = getValue(content);
 				input.expectedIntent = getValue(expectedIntent);
-				input.expectedDomain = getValue(expectedDomain);
-				input.expectedDataInsideIntent = getValue(expectedDataIntent);
-				input.expectedSemantic = getValue(expectedSemantic);
 				list.add(input);
 			}
 		}
@@ -88,19 +85,16 @@ public class ExcelUtil {
 		XSSFSheet sheet = workbook.createSheet();
 		XSSFRow row0 = sheet.createRow(0);
 		row0.createCell(0).setCellValue("Question");
-		row0.createCell(1).setCellValue("期待Domian");
-		row0.createCell(2).setCellValue("Domian");
-		row0.createCell(3).setCellValue("期待Data Intent");
-		row0.createCell(4).setCellValue("Data Intent");
-		row0.createCell(5).setCellValue("期待Semantic");
-		row0.createCell(6).setCellValue("Semantic");
-		row0.createCell(7).setCellValue("期待ChanghongIntent");
-		row0.createCell(8).setCellValue("Changhong Intent");
-		row0.createCell(9).setCellValue("Default");
-		row0.createCell(10).setCellValue("User Define");
-		row0.createCell(11).setCellValue("Time Consumed");
-		row0.createCell(12).setCellValue("Origin Json");
-		row0.createCell(13).setCellValue("Result");
+		row0.createCell(1).setCellValue("Domian");
+		row0.createCell(2).setCellValue("Data Intent");
+		row0.createCell(3).setCellValue("Semantic");
+		row0.createCell(4).setCellValue("期待ChanghongIntent");
+		row0.createCell(5).setCellValue("Changhong Intent");
+		row0.createCell(6).setCellValue("Default");
+		row0.createCell(7).setCellValue("User Define");
+		row0.createCell(8).setCellValue("Time Consumed");
+		row0.createCell(9).setCellValue("Origin Json");
+		row0.createCell(10).setCellValue("Result");
 		
 		int totalNum = results.size();
 		int passNum = 0;
@@ -110,43 +104,40 @@ public class ExcelUtil {
 			boolean cmpResult = true;
 			XSSFRow row = sheet.createRow(++rowNum);
 			row.createCell(0).setCellValue(result.question);
-			row.createCell(1).setCellValue(result.expectedDomain);
-			XSSFCell domainCell = row.createCell(2);
+			XSSFCell domainCell = row.createCell(1);
 			domainCell.setCellValue(result.domain);
-			if(!isValueCorrect(result.expectedDomain, result.domain)){
-				domainCell.setCellStyle(cellStyle);
-				cmpResult = false;
-			}
+//			if(!isValueCorrect(result.expectedDomain, result.domain)){
+//				domainCell.setCellStyle(cellStyle);
+//				cmpResult = false;
+//			}
 			
-			row.createCell(3).setCellValue(result.expectedDataInsideIntent);
-			XSSFCell intentCell = row.createCell(4);
+			XSSFCell intentCell = row.createCell(2);
 			intentCell.setCellValue(result.intent);
-			if(!isValueCorrect(result.expectedDataInsideIntent, result.intent)){
-				intentCell.setCellStyle(cellStyle);
-				cmpResult = false;
-			}
+//			if(!isValueCorrect(result.expectedDataInsideIntent, result.intent)){
+//				intentCell.setCellStyle(cellStyle);
+//				cmpResult = false;
+//			}
 			
-			row.createCell(5).setCellValue(result.expectedSemantic);
-			XSSFCell semanticCellrow = row.createCell(6);
+			XSSFCell semanticCellrow = row.createCell(3);
 			semanticCellrow.setCellValue(result.semantic);
-			if(!isValueCorrect(result.expectedSemantic, result.semantic)){
-				semanticCellrow.setCellStyle(cellStyle);
-				cmpResult = false;
-			}
+//			if(!isValueCorrect(result.expectedSemantic, result.semantic)){
+//				semanticCellrow.setCellStyle(cellStyle);
+//				cmpResult = false;
+//			}
 			
-			row.createCell(7).setCellValue(result.expectedIntent);
-			XSSFCell changhongIntentCell = row.createCell(8);
+			row.createCell(4).setCellValue(result.expectedIntent);
+			XSSFCell changhongIntentCell = row.createCell(5);
 			changhongIntentCell.setCellValue(result.changhongIntent);
 			if(!isValueCorrect(result.expectedIntent, result.changhongIntent)){
 				changhongIntentCell.setCellStyle(cellStyle);
 				cmpResult = false;
 			}
 			
-			row.createCell(9).setCellValue(result.defaultIntent);
-			row.createCell(10).setCellValue(result.userDefineIntent);
-			row.createCell(11).setCellValue(result.timeConsumed);
-			row.createCell(12).setCellValue(result.originJson);
-			XSSFCell cmpCell = row.createCell(13);
+			row.createCell(6).setCellValue(result.defaultIntent);
+			row.createCell(7).setCellValue(result.userDefineIntent);
+			row.createCell(8).setCellValue(result.timeConsumed);
+			row.createCell(9).setCellValue(result.originJson);
+			XSSFCell cmpCell = row.createCell(10);
 			if(cmpResult){
 				cmpCell.setCellValue("Pass");
 				cmpCell.setCellStyle(correctStyle);

@@ -108,6 +108,8 @@ class MyRunnable implements Runnable {
 		document.append("userid", ProduceExcel.USER_ID);
 		document.append("text", input.question);
 		document.append("nocache", "1");
+		
+		
 		String result = null;
 
 		try {
@@ -174,11 +176,8 @@ class MyRunnable implements Runnable {
 			}
 
 			Result resultObj = new Result();
-			resultObj.expectedDomain = input.expectedDomain;
 			resultObj.domain = domain;
-			resultObj.expectedDataInsideIntent = input.expectedDataInsideIntent;
 			resultObj.intent = intent;
-			resultObj.expectedSemantic = input.expectedSemantic;
 			resultObj.semantic = semantic;
 			resultObj.changhongIntent = changhongIntent;
 			resultObj.userDefineIntent = userDefineIntent;
@@ -198,9 +197,6 @@ class MyRunnable implements Runnable {
 			Result resultObj = new Result();
 			resultObj.question = input.question;
 			resultObj.expectedIntent = input.expectedIntent;
-			resultObj.expectedDomain = input.expectedIntent;
-			resultObj.expectedDataInsideIntent = input.expectedDataInsideIntent;
-			resultObj.expectedSemantic = input.expectedSemantic;
 			if (result != null) {
 				resultObj.originJson = result;
 			} else {
