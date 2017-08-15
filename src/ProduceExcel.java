@@ -2,10 +2,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,11 +21,14 @@ public class ProduceExcel {
 	public static String URL = "";
 	public static String APP_ID = "";
 	public static String USER_ID = "";
+//	public static int THREAD_NUM = 1;
+	public static boolean USE_CACHE = false;
 
 	public static void main(String[] args) {
 
-		if (args.length < 5) {
-			System.out.println("参数为：\"输入文件地址\",\"输出文件地址\",\"访问的url\",\"appid\",\"userid\" ");
+		if (args.length < 6) {
+			System.out.println("参数为：\"输入文件地址\",\"输出文件地址\",\"访问的url\",\"appid\",\"userid\",\"是否使用缓存\"");
+//			System.out.println("参数为：\"输入文件地址\",\"输出文件地址\",\"访问的url\",\"appid\",\"userid\",\"线程数\",\"是否使用缓存\" ");
 			return;
 		}
 
@@ -31,36 +37,50 @@ public class ProduceExcel {
 		URL = args[2];
 		APP_ID = args[3];
 		USER_ID = args[4];
+		String useCacheString = args[5];
+		if(useCacheString.toLowerCase().equals("true")){
+			USE_CACHE = true;
+		}
+//		String numString = args[5];
+//		try {
+//			THREAD_NUM = Integer.parseInt(numString);
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+		
 
-		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
+		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(20);
 		ExcelUtil readExcel = new ExcelUtil();
 
 		ArrayList<Result> results = new ArrayList<>();
 		try {
 			ArrayList<Input> questions = (ArrayList<Input>) readExcel.readXlsx(IN_PATH);
+			readExcel.createXlsx(OUT_PATH);
 			for (Input q : questions) {
-				fixedThreadPool.execute(new MyRunnable(results, q));
+				fixedThreadPool.execute(new MyRunnable(results, q, readExcel));
 			}
+			
+//			int num = 0;
+//			
+//			long time = System.currentTimeMillis();
+//			
+//			long duration = 1000 * 2;
+//			
+//			while((System.currentTimeMillis() - time) < duration){
+//				Input q = questions.get(num);
+//				num = (++num)%questions.size();
+//				Thread.sleep(10);
+////				System.out.println("Current Time:"+(System.currentTimeMillis() - time));
+//				
+//				fixedThreadPool.execute(new MyRunnable(results, q, readExcel));
+//			}
 
 			fixedThreadPool.shutdown();
 			fixedThreadPool.awaitTermination(1, TimeUnit.DAYS);
 
-			// fixedThreadPool.execute( new Runnable() {
-			// public void run() {
-			// System.out.println("------------------------------------------");
-			//
-			// try {
-			// readExcel.writeXlsx(args[1], results);
-			// } catch (IOException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// }
-			// });
-
 			System.out.println("------------------------------------------");
 
-			readExcel.writeXlsx(OUT_PATH, results);
+//			readExcel.writeXlsx(OUT_PATH, results);
 
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -86,10 +106,12 @@ class MyRunnable implements Runnable {
 
 	private ArrayList<Result> results;
 	private Input input;
+	private ExcelUtil excelUtil;
 
-	public MyRunnable(ArrayList<Result> results, Input input) {
+	public MyRunnable(ArrayList<Result> results, Input input, ExcelUtil excelUtil) {
 		this.results = results;
 		this.input = input;
+		this.excelUtil = excelUtil;
 	}
 
 	@SuppressWarnings("unused")
@@ -105,10 +127,12 @@ class MyRunnable implements Runnable {
 		document.append("cmd", "chat");
 		// document.append("userid", "0E2C2D3D11FB8502E8629830869B05CAD");//长虹
 		// document.append("userid", "0224ACEC80DDB3443D311E09879943DA9");//idc
-		document.append("userid", ProduceExcel.USER_ID);
+//		document.append("userid", ProduceExcel.USER_ID);
+		document.append("userid", UUID.randomUUID().toString());
 		document.append("text", input.question);
-		document.append("nocache", "1");
-		
+		if(!ProduceExcel.USE_CACHE){
+			document.append("nocache", "1");
+		}
 		
 		String result = null;
 
@@ -153,6 +177,7 @@ class MyRunnable implements Runnable {
 			String changhongIntent = "";
 			String userDefineIntent = "";
 			String defaultIntent = "";
+			int changhongScore = 0;
 
 			Iterator intentIterator = intents.iterator();
 
@@ -171,7 +196,10 @@ class MyRunnable implements Runnable {
 				} else if (intentType.equals(DEFAULT)) {
 					defaultIntent += readableIntent;
 				} else if (intentType.equals(CHANG_HONG)) {
-					changhongIntent += readableIntent;
+					if(changhongScore < score){
+						changhongScore = score;
+						changhongIntent = readableIntent;
+					}
 				}
 			}
 
@@ -186,10 +214,12 @@ class MyRunnable implements Runnable {
 			resultObj.question = input.question;
 			resultObj.expectedIntent = input.expectedIntent;
 			resultObj.originJson = result;
+			resultObj.changhongScore = changhongScore;
 
-			synchronized (results) {
-				results.add(resultObj);
-			}
+//			synchronized (results) {
+//				results.add(resultObj);
+//			}
+			excelUtil.writeSingleRecordXlsx(ProduceExcel.OUT_PATH, resultObj);
 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -205,6 +235,15 @@ class MyRunnable implements Runnable {
 			synchronized (results) {
 				results.add(resultObj);
 			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (EncryptedDocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 	}

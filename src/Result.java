@@ -8,6 +8,8 @@ public class Result {
 		public String userDefineIntent;
 		public String defaultIntent;
 		
+		public int changhongScore;
+		
 		public String question;
 		public String expectedIntent;
 		
