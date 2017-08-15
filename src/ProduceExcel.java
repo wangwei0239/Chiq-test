@@ -18,6 +18,7 @@ public class ProduceExcel {
 	public static String URL = "";
 	public static String APP_ID = "";
 	public static String USER_ID = "";
+	public static boolean USE_CACHE = false;
 
 	public static void main(String[] args) {
 
@@ -31,6 +32,10 @@ public class ProduceExcel {
 		URL = args[2];
 		APP_ID = args[3];
 		USER_ID = args[4];
+		String useCache = args[5];
+		if(useCache.toLowerCase().equals("true")){
+			USE_CACHE = true;
+		}
 
 		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
 		ExcelUtil readExcel = new ExcelUtil();
@@ -107,7 +112,9 @@ class MyRunnable implements Runnable {
 		// document.append("userid", "0224ACEC80DDB3443D311E09879943DA9");//idc
 		document.append("userid", ProduceExcel.USER_ID);
 		document.append("text", input.question);
-		document.append("nocache", "1");
+		if(!ProduceExcel.USE_CACHE){
+			document.append("nocache", "1");
+		}
 		String result = null;
 
 		try {
