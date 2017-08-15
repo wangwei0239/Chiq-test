@@ -180,21 +180,26 @@ public class ExcelUtil {
 	private boolean isValueCorrect(String expected, String realValue){
 		boolean isJson = false;
 		try {
-			JSONObject jsonObject = new JSONObject(expected);
-			JSONObject jsonObject2 = new JSONObject(realValue);
-			isJson = true;
-		} catch (JSONException e) {
+			try {
+				JSONObject jsonObject = new JSONObject(expected);
+				JSONObject jsonObject2 = new JSONObject(realValue);
+				isJson = true;
+			} catch (JSONException e) {
+			}
+			
+			if(isJson){
+				Gson gsonExpected = new GsonBuilder().create();
+				JsonElement elementExpected = gsonExpected.toJsonTree(expected);
+				Gson gsonRealValue = new GsonBuilder().create();
+				JsonElement elementRealValue = gsonExpected.toJsonTree(realValue);
+				return elementExpected.equals(elementRealValue);
+			}else {
+				return expected.equals(realValue);
+			}
+		} catch (NullPointerException e) {
+			return expected == null;
 		}
 		
-		if(isJson){
-			Gson gsonExpected = new GsonBuilder().create();
-			JsonElement elementExpected = gsonExpected.toJsonTree(expected);
-			Gson gsonRealValue = new GsonBuilder().create();
-			JsonElement elementRealValue = gsonExpected.toJsonTree(realValue);
-			return elementExpected.equals(elementRealValue);
-		}else {
-			return expected.equals(realValue);
-		}
 		
 	}
 	
