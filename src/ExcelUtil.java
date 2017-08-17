@@ -137,13 +137,37 @@ public class ExcelUtil {
 			row.createCell(7).setCellValue(result.expectedIntent);
 			XSSFCell changhongIntentCell = row.createCell(8);
 			changhongIntentCell.setCellValue(result.changhongIntent);
-			if(!isValueCorrect(result.expectedIntent, result.changhongIntent)){
-				changhongIntentCell.setCellStyle(cellStyle);
-				cmpResult = false;
+			
+			XSSFCell defaultIntentCell = row.createCell(9);
+			defaultIntentCell.setCellValue(result.defaultIntent);
+			
+			XSSFCell userDefineIntent = row.createCell(10);
+			userDefineIntent.setCellValue(result.userDefineIntent);
+			
+			switch (ProduceExcel.CMPED_INTENT) {
+			case "udf":
+				if(!isValueCorrect(result.expectedIntent, result.userDefineIntent)){
+					userDefineIntent.setCellStyle(cellStyle);
+					cmpResult = false;
+				}
+				break;
+			
+			case "df":
+				if(!isValueCorrect(result.expectedIntent, result.defaultIntent)){
+					defaultIntentCell.setCellStyle(cellStyle);
+					cmpResult = false;
+				}
+				break;
+				
+			case "ch":
+			default:
+				if(!isValueCorrect(result.expectedIntent, result.changhongIntent)){
+					changhongIntentCell.setCellStyle(cellStyle);
+					cmpResult = false;
+				}
+				break;
 			}
 			
-			row.createCell(9).setCellValue(result.defaultIntent);
-			row.createCell(10).setCellValue(result.userDefineIntent);
 			row.createCell(11).setCellValue(result.timeConsumed);
 			row.createCell(12).setCellValue(result.originJson);
 			XSSFCell cmpCell = row.createCell(13);

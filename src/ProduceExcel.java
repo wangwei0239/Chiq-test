@@ -19,11 +19,12 @@ public class ProduceExcel {
 	public static String APP_ID = "";
 	public static String USER_ID = "";
 	public static boolean USE_CACHE = false;
+	public static String CMPED_INTENT = "";
 
 	public static void main(String[] args) {
 
-		if (args.length < 5) {
-			System.out.println("参数为：\"输入文件地址\",\"输出文件地址\",\"访问的url\",\"appid\",\"userid\" ");
+		if (args.length < 7) {
+			System.out.println("参数为：\"输入文件地址\",\"输出文件地址\",\"访问的url\",\"appid\",\"userid\",\"是否使用cache\",\"需要对比的intent(udf,df,ch)\" ");
 			return;
 		}
 
@@ -36,6 +37,7 @@ public class ProduceExcel {
 		if(useCache.toLowerCase().equals("true")){
 			USE_CACHE = true;
 		}
+		CMPED_INTENT = args[6];
 
 		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
 		ExcelUtil readExcel = new ExcelUtil();
@@ -159,6 +161,8 @@ class MyRunnable implements Runnable {
 			String userDefineIntent = "";
 			String defaultIntent = "";
 			int changhongScore = 0;
+			int userDefaultScore = 0;
+			int defaultScore = 0;
 			Iterator intentIterator = intents.iterator();
 
 			while (intentIterator.hasNext()) {
@@ -172,9 +176,17 @@ class MyRunnable implements Runnable {
 				String readableIntent = value;
 
 				if (intentType.equals(USER_DEFINE)) {
-					userDefineIntent += readableIntent;
+//					userDefineIntent += readableIntent;
+					if(userDefaultScore < score){
+						userDefaultScore = score;
+						userDefineIntent = readableIntent;
+					}
 				} else if (intentType.equals(DEFAULT)) {
-					defaultIntent += readableIntent;
+//					defaultIntent += readableIntent;
+					if(defaultScore < score){
+						defaultScore = score;
+						defaultIntent = readableIntent;
+					}
 				} else if (intentType.equals(CHANG_HONG)) {
 					if(changhongScore < score){
 						changhongScore = score;
