@@ -158,7 +158,7 @@ class MyRunnable implements Runnable {
 			String changhongIntent = "";
 			String userDefineIntent = "";
 			String defaultIntent = "";
-
+			int changhongScore = 0;
 			Iterator intentIterator = intents.iterator();
 
 			while (intentIterator.hasNext()) {
@@ -176,7 +176,10 @@ class MyRunnable implements Runnable {
 				} else if (intentType.equals(DEFAULT)) {
 					defaultIntent += readableIntent;
 				} else if (intentType.equals(CHANG_HONG)) {
-					changhongIntent += readableIntent;
+					if(changhongScore < score){
+						changhongScore = score;
+						changhongIntent = readableIntent;
+					}
 				}
 			}
 
