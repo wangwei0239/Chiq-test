@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -52,19 +53,6 @@ public class ProduceExcel {
 			fixedThreadPool.shutdown();
 			fixedThreadPool.awaitTermination(1, TimeUnit.DAYS);
 
-			// fixedThreadPool.execute( new Runnable() {
-			// public void run() {
-			// System.out.println("------------------------------------------");
-			//
-			// try {
-			// readExcel.writeXlsx(args[1], results);
-			// } catch (IOException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// }
-			// });
-
 			System.out.println("------------------------------------------");
 
 			readExcel.writeXlsx(OUT_PATH, results);
@@ -106,12 +94,8 @@ class MyRunnable implements Runnable {
 		Document document = new Document();
 		long startTime = new Date().getTime();
 		long timeConsumed = -1;
-		// document.append("appid", "5a200ce8e6ec3a6506030e54ac3b970e");//长虹
-		// document.append("appid", "6877bc4cf5ad74a6af8d1076e4eec7be");//idc
 		document.append("appid", ProduceExcel.APP_ID);// idc
 		document.append("cmd", "chat");
-		// document.append("userid", "0E2C2D3D11FB8502E8629830869B05CAD");//长虹
-		// document.append("userid", "0224ACEC80DDB3443D311E09879943DA9");//idc
 		document.append("userid", ProduceExcel.USER_ID);
 		document.append("text", input.question);
 		if(!ProduceExcel.USE_CACHE){
@@ -120,19 +104,6 @@ class MyRunnable implements Runnable {
 		String result = null;
 
 		try {
-			result = request._sendRequest(ProduceExcel.URL, document);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		try {
-			// String result =
-			// request._sendRequest("http://emotibot.changhong.com/api/ApiKey/openapi.php",
-			// document);//长虹
-
-			// System.out.println(result);
-
 			long endTime = new Date().getTime();
 			timeConsumed = endTime - startTime;
 			JSONObject jsonObject = new JSONObject(result);
@@ -168,21 +139,16 @@ class MyRunnable implements Runnable {
 			while (intentIterator.hasNext()) {
 				JSONObject intentJson = (JSONObject) intentIterator.next();
 				String intentType = intentJson.getString(CATEGORY);
-
-				// System.out.println("Category:"+intentType);
-
 				String value = intentJson.getString("value");
 				int score = intentJson.getInt("score");
 				String readableIntent = value;
 
 				if (intentType.equals(USER_DEFINE)) {
-//					userDefineIntent += readableIntent;
 					if(userDefaultScore < score){
 						userDefaultScore = score;
 						userDefineIntent = readableIntent;
 					}
 				} else if (intentType.equals(DEFAULT)) {
-//					defaultIntent += readableIntent;
 					if(defaultScore < score){
 						defaultScore = score;
 						defaultIntent = readableIntent;
@@ -215,7 +181,6 @@ class MyRunnable implements Runnable {
 			}
 
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Result resultObj = new Result();
 			resultObj.question = input.question;
@@ -236,14 +201,3 @@ class MyRunnable implements Runnable {
 	}
 
 }
-
-// class Result{
-// public String domain;
-// public String semantic;
-// public long timeConsumed;
-// public String intent;
-//
-// public String changhongIntent;
-// public String userDefineIntent;
-// public String defaultIntent;
-// }

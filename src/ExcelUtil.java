@@ -25,17 +25,6 @@ import com.google.gson.JsonElement;
 
 public class ExcelUtil {
 	
-//	public static void main(String[] args) {
-//		ExcelUtil readExcel = new ExcelUtil();
-//		try {
-//			List<String> list = readExcel.readXlsx("/Users/wangwei/Documents/changhong/testset.xlsx");
-//			System.out.println(list);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
-	
 	public List<Input> readXlsx(String path) throws IOException{
 		InputStream is = new FileInputStream(path);
 		XSSFWorkbook xssfWorkbook = new XSSFWorkbook(is);
@@ -48,18 +37,22 @@ public class ExcelUtil {
 		for(int rowNum = 1; rowNum <= xssfSheet.getLastRowNum(); rowNum++){
 			XSSFRow xssfRow = xssfSheet.getRow(rowNum);
 			if(xssfRow != null){
-				XSSFCell content = xssfRow.getCell(0);
-				XSSFCell expectedIntent = xssfRow.getCell(1);
-				XSSFCell expectedDomain = xssfRow.getCell(2);
-				XSSFCell expectedDataIntent = xssfRow.getCell(3);
-				XSSFCell expectedSemantic = xssfRow.getCell(4);
-				Input input = new Input();
-				input.question = getValue(content);
-				input.expectedIntent = getValue(expectedIntent);
-				input.expectedDomain = getValue(expectedDomain);
-				input.expectedDataInsideIntent = getValue(expectedDataIntent);
-				input.expectedSemantic = getValue(expectedSemantic);
-				list.add(input);
+				try {
+					XSSFCell content = xssfRow.getCell(0);
+					XSSFCell expectedIntent = xssfRow.getCell(1);
+					XSSFCell expectedDomain = xssfRow.getCell(2);
+					XSSFCell expectedDataIntent = xssfRow.getCell(3);
+					XSSFCell expectedSemantic = xssfRow.getCell(4);
+					Input input = new Input();
+					input.question = getValue(content);
+					input.expectedIntent = getValue(expectedIntent);
+					input.expectedDomain = getValue(expectedDomain);
+					input.expectedDataInsideIntent = getValue(expectedDataIntent);
+					input.expectedSemantic = getValue(expectedSemantic);
+					list.add(input);
+				} catch (NullPointerException e) {
+					// TODO: handle exception
+				}
 			}
 		}
 		xssfWorkbook.close();
@@ -68,12 +61,6 @@ public class ExcelUtil {
 	}
 	
 	public void writeXlsx(String path, ArrayList<Result> results) throws IOException{
-//		InputStream is = new FileInputStream(path);
-//		XSSFWorkbook xssfWorkbook = new XSSFWorkbook(is);
-//		XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
-//		if(xssfSheet == null){
-//			xssfSheet
-//		}
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		
 		XSSFCellStyle cellStyle = workbook.createCellStyle();
@@ -194,6 +181,11 @@ public class ExcelUtil {
 		XSSFCell failCell = row.createCell(2);
 		failCell.setCellValue("Fail:"+failNum);
 		failCell.setCellStyle(cellStyle);
+		
+		System.out.println("Test Result:");
+		System.out.println("Pass:"+passNum);
+		System.out.println("Fail:"+failNum);
+		System.out.println("Total:"+totalNum);
 		
 		OutputStream outputStream = new FileOutputStream(path);
 		workbook.write(outputStream);
