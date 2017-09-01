@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="libs/commons-collections4-4.1.jar"/>
 	<classpathentry kind="lib" path="libs/json-20160212.jar" sourcepath="/Users/wangwei/.m2/repository/org/json/json/20160212/json-20160212-sources.jar"/>
 	<classpathentry kind="lib" path="libs/gson-2.8.1.jar"/>
+	<classpathentry kind="lib" path="libs/argparse4j-0.7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
