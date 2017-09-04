@@ -12,6 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.ArgumentType;
+import net.sourceforge.argparse4j.inf.Namespace;
+
 public class ProduceExcel {
 
 	public static String IN_PATH = "";
@@ -23,22 +30,53 @@ public class ProduceExcel {
 	public static String CMPED_INTENT = "";
 
 	public static void main(String[] args) {
-
-		if (args.length < 7) {
-			System.out.println("参数为：\"输入文件地址\",\"输出文件地址\",\"访问的url\",\"appid\",\"userid\",\"是否使用cache\",\"需要对比的intent(udf,df,ch)\" ");
-			return;
+		
+		ArgumentParser parser = ArgumentParsers.newArgumentParser("Chiq-test");
+		parser.addArgument("-i","--input_file").required(true).help("输入文件地址").metavar("");
+		parser.addArgument("-o","--output_file").required(true).help("输出文件地址").metavar("");
+		parser.addArgument("-l","--url").required(true).help("测试url").metavar("");
+		parser.addArgument("-a","--appid").required(true).help("appid").metavar("");
+		parser.addArgument("-u","--user_id").required(true).help("user id").metavar("");
+		parser.addArgument("-c","--use_cache").required(true).type(Boolean.class).help("是否使用cache，使用为'true'，不是用为'false'").metavar("");
+		parser.addArgument("-p","--cmped_intent").help("需要对比的intent").metavar("");
+		parser.addArgument("-d","--cmp_domain").help("对比domain").metavar("");
+		parser.addArgument("-s","--cmp_semantic").help("对比semantic").metavar("");
+		parser.addArgument("-t","--cmp_data_intent").help("对比data里面的intent").metavar("");
+		
+		
+		Namespace namespace = null;
+		try {
+			namespace = parser.parseArgs(args);
+			namespace.toString();
+		} catch (ArgumentParserException e1) {
+			parser.handleError(e1);
+			parser.printHelp();
+			System.exit(1);
 		}
 
-		IN_PATH = args[0];
-		OUT_PATH = args[1];
-		URL = args[2];
-		APP_ID = args[3];
-		USER_ID = args[4];
-		String useCache = args[5];
-		if(useCache.toLowerCase().equals("true")){
-			USE_CACHE = true;
-		}
-		CMPED_INTENT = args[6];
+//		if (args.length < 7) {
+//			System.out.println("参数为：\"输入文件地址\",\"输出文件地址\",\"访问的url\",\"appid\",\"userid\",\"是否使用cache\",\"需要对比的intent(udf,df,ch)\" ");
+//			return;
+//		}
+//
+//		IN_PATH = args[0];
+//		OUT_PATH = args[1];
+//		URL = args[2];
+//		APP_ID = args[3];
+//		USER_ID = args[4];
+//		String useCache = args[5];
+//		if(useCache.toLowerCase().equals("true")){
+//			USE_CACHE = true;
+//		}
+//		CMPED_INTENT = args[6];
+		
+		IN_PATH = namespace.getString("input_file");
+		OUT_PATH = namespace.getString("output_file");
+		URL = namespace.getString("url");
+		APP_ID = namespace.getString("appid");
+		USER_ID = namespace.getString("user_id");
+		USE_CACHE = namespace.getBoolean("use_cache");
+		CMPED_INTENT = namespace.getString("cmped_intent");
 
 		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
 		ExcelUtil readExcel = new ExcelUtil();
@@ -106,6 +144,7 @@ class MyRunnable implements Runnable {
 		try {
 			long endTime = new Date().getTime();
 			timeConsumed = endTime - startTime;
+			System.out.println("Result:"+result);
 			JSONObject jsonObject = new JSONObject(result);
 			JSONArray datas = jsonObject.getJSONArray(DATA);
 			Iterator iterator = datas.iterator();
