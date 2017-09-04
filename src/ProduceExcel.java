@@ -28,21 +28,27 @@ public class ProduceExcel {
 	public static String USER_ID = "";
 	public static boolean USE_CACHE = false;
 	public static String CMPED_INTENT = "";
+	public static int NUM_OF_THREAD = 1;
+	public static boolean IS_CMP_INTENT = true;
+	public static boolean IS_CMP_DOMAIN = true;
+	public static boolean IS_CMP_SEMANTIC = true;
+	public static boolean IS_CMP_DATA_INTENT = true;
 
 	public static void main(String[] args) {
 		
 		ArgumentParser parser = ArgumentParsers.newArgumentParser("Chiq-test");
-		parser.addArgument("-i","--input_file").required(true).help("输入文件地址").metavar("");
-		parser.addArgument("-o","--output_file").required(true).help("输出文件地址").metavar("");
-		parser.addArgument("-l","--url").required(true).help("测试url").metavar("");
-		parser.addArgument("-a","--appid").required(true).help("appid").metavar("");
-		parser.addArgument("-u","--user_id").required(true).help("user id").metavar("");
-		parser.addArgument("-c","--use_cache").required(true).type(Boolean.class).help("是否使用cache，使用为'true'，不是用为'false'").metavar("");
-		parser.addArgument("-p","--cmped_intent").help("需要对比的intent").metavar("");
-		parser.addArgument("-d","--cmp_domain").help("对比domain").metavar("");
-		parser.addArgument("-s","--cmp_semantic").help("对比semantic").metavar("");
-		parser.addArgument("-t","--cmp_data_intent").help("对比data里面的intent").metavar("");
-		
+		parser.addArgument("--input_file").required(true).help("输入文件地址").metavar("");
+		parser.addArgument("--output_file").required(true).help("输出文件地址").metavar("");
+		parser.addArgument("--url").required(true).help("测试url").metavar("");
+		parser.addArgument("--appid").required(true).help("appid").metavar("");
+		parser.addArgument("--user_id").required(true).help("user id").metavar("");
+		parser.addArgument("--use_cache").required(true).type(Boolean.class).help("是否使用cache，使用为'true'，不是用为'false'").metavar("");
+		parser.addArgument("--cmped_intent").choices("udf","df","ch").setDefault("ch").help("需要对比的intent").metavar("");
+		parser.addArgument("--cmp_intent").type(Boolean.class).setDefault(false).help("是否对比intent").metavar("");
+		parser.addArgument("--cmp_domain").type(Boolean.class).setDefault(false).help("是否对比domain").metavar("");
+		parser.addArgument("--cmp_semantic").type(Boolean.class).setDefault(false).help("是否对比semantic").metavar("");
+		parser.addArgument("--cmp_data_intent").type(Boolean.class).setDefault(false).help("是否对比data里面的intent").metavar("");
+		parser.addArgument("--thread_num").type(Integer.class).help("线程数").setDefault(1).metavar("");
 		
 		Namespace namespace = null;
 		try {
@@ -77,8 +83,14 @@ public class ProduceExcel {
 		USER_ID = namespace.getString("user_id");
 		USE_CACHE = namespace.getBoolean("use_cache");
 		CMPED_INTENT = namespace.getString("cmped_intent");
+		NUM_OF_THREAD = namespace.getInt("thread_num");
+		IS_CMP_INTENT = namespace.getBoolean("cmp_intent");
+		IS_CMP_DOMAIN = namespace.getBoolean("cmp_domain");
+		IS_CMP_SEMANTIC = namespace.getBoolean("cmp_semantic");
+		IS_CMP_DATA_INTENT = namespace.getBoolean("cmp_data_intent");
+		
 
-		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
+		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(NUM_OF_THREAD);
 		ExcelUtil readExcel = new ExcelUtil();
 
 		ArrayList<Result> results = new ArrayList<>();
@@ -128,6 +140,9 @@ class MyRunnable implements Runnable {
 	@SuppressWarnings("unused")
 	@Override
 	public void run() {
+		if(input == null || input.question == null || input.question.trim().equals("")){
+			return;
+		}
 		Request request = new Request();
 		Document document = new Document();
 		long startTime = new Date().getTime();
@@ -140,6 +155,13 @@ class MyRunnable implements Runnable {
 			document.append("nocache", "1");
 		}
 		String result = null;
+		
+		try {
+			result = request._sendRequest(ProduceExcel.URL, document);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		try {
 			long endTime = new Date().getTime();

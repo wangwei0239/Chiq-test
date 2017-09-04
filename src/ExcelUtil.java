@@ -38,11 +38,25 @@ public class ExcelUtil {
 			XSSFRow xssfRow = xssfSheet.getRow(rowNum);
 			if(xssfRow != null){
 				try {
-					XSSFCell content = xssfRow.getCell(0);
-					XSSFCell expectedIntent = xssfRow.getCell(1);
-					XSSFCell expectedDomain = xssfRow.getCell(2);
-					XSSFCell expectedDataIntent = xssfRow.getCell(3);
-					XSSFCell expectedSemantic = xssfRow.getCell(4);
+					int columnId = 0;
+					XSSFCell content = xssfRow.getCell(columnId++);
+					XSSFCell expectedIntent = null;
+					XSSFCell expectedDomain = null;
+					XSSFCell expectedDataIntent = null;
+					XSSFCell expectedSemantic = null;
+					if(ProduceExcel.IS_CMP_INTENT){
+						expectedIntent = xssfRow.getCell(columnId++);
+					}
+					
+					if(ProduceExcel.IS_CMP_DOMAIN){
+						expectedDomain = xssfRow.getCell(columnId++);
+					}
+					if(ProduceExcel.IS_CMP_DATA_INTENT){
+						expectedDataIntent = xssfRow.getCell(columnId++);
+					}
+					if(ProduceExcel.IS_CMP_SEMANTIC){
+						expectedSemantic = xssfRow.getCell(columnId++);
+					}
 					Input input = new Input();
 					input.question = getValue(content);
 					input.expectedIntent = getValue(expectedIntent);
@@ -74,90 +88,111 @@ public class ExcelUtil {
 		int rowNum = 0;
 		XSSFSheet sheet = workbook.createSheet();
 		XSSFRow row0 = sheet.createRow(0);
-		row0.createCell(0).setCellValue("Question");
-		row0.createCell(1).setCellValue("期待Domian");
-		row0.createCell(2).setCellValue("Domian");
-		row0.createCell(3).setCellValue("期待Data Intent");
-		row0.createCell(4).setCellValue("Data Intent");
-		row0.createCell(5).setCellValue("期待Semantic");
-		row0.createCell(6).setCellValue("Semantic");
-		row0.createCell(7).setCellValue("期待ChanghongIntent");
-		row0.createCell(8).setCellValue("Changhong Intent");
-		row0.createCell(9).setCellValue("Default");
-		row0.createCell(10).setCellValue("User Define");
-		row0.createCell(11).setCellValue("Time Consumed");
-		row0.createCell(12).setCellValue("Origin Json");
-		row0.createCell(13).setCellValue("Result");
+		
+		int columnId = 0;
+		
+		row0.createCell(columnId++).setCellValue("Question");
+		if(ProduceExcel.IS_CMP_DOMAIN){
+			row0.createCell(columnId++).setCellValue("期待Domian");
+		}
+		row0.createCell(columnId++).setCellValue("Domian");
+		if(ProduceExcel.IS_CMP_DATA_INTENT){
+			row0.createCell(columnId++).setCellValue("期待Data Intent");
+		}
+		row0.createCell(columnId++).setCellValue("Data Intent");
+		if(ProduceExcel.IS_CMP_SEMANTIC){
+			row0.createCell(columnId++).setCellValue("期待Semantic");
+		}
+		row0.createCell(columnId++).setCellValue("Semantic");
+		if(ProduceExcel.IS_CMP_INTENT){
+			row0.createCell(columnId++).setCellValue("期待Intent");
+		}
+		row0.createCell(columnId++).setCellValue("Intent");
+		row0.createCell(columnId++).setCellValue("Default");
+		row0.createCell(columnId++).setCellValue("User Define");
+		row0.createCell(columnId++).setCellValue("Time Consumed");
+		row0.createCell(columnId++).setCellValue("Origin Json");
+		row0.createCell(columnId++).setCellValue("Result");
 		
 		int totalNum = results.size();
 		int passNum = 0;
 		int failNum = 0;
 		
+		
+		
 		for(Result result : results){
+			columnId = 0;
 			boolean cmpResult = true;
 			XSSFRow row = sheet.createRow(++rowNum);
-			row.createCell(0).setCellValue(result.question);
-			row.createCell(1).setCellValue(result.expectedDomain);
-			XSSFCell domainCell = row.createCell(2);
+			row.createCell(columnId++).setCellValue(result.question);
+			if(ProduceExcel.IS_CMP_DOMAIN){
+				row.createCell(columnId++).setCellValue(result.expectedDomain);
+			}
+			XSSFCell domainCell = row.createCell(columnId++);
 			domainCell.setCellValue(result.domain);
-			if(!isValueCorrect(result.expectedDomain, result.domain)){
+			if(!isValueCorrect(result.expectedDomain, result.domain)&&ProduceExcel.IS_CMP_DOMAIN){
 				domainCell.setCellStyle(cellStyle);
 				cmpResult = false;
 			}
-			
-			row.createCell(3).setCellValue(result.expectedDataInsideIntent);
-			XSSFCell intentCell = row.createCell(4);
+			if(ProduceExcel.IS_CMP_DATA_INTENT){
+				row.createCell(columnId++).setCellValue(result.expectedDataInsideIntent);
+			}
+			XSSFCell intentCell = row.createCell(columnId++);
 			intentCell.setCellValue(result.intent);
-			if(!isValueCorrect(result.expectedDataInsideIntent, result.intent)){
+			if(!isValueCorrect(result.expectedDataInsideIntent, result.intent)&&ProduceExcel.IS_CMP_DATA_INTENT){
 				intentCell.setCellStyle(cellStyle);
 				cmpResult = false;
 			}
-			
-			row.createCell(5).setCellValue(result.expectedSemantic);
-			XSSFCell semanticCellrow = row.createCell(6);
+			if(ProduceExcel.IS_CMP_SEMANTIC){
+				row.createCell(columnId++).setCellValue(result.expectedSemantic);
+			}
+			XSSFCell semanticCellrow = row.createCell(columnId++);
 			semanticCellrow.setCellValue(result.semantic);
-			if(!isValueCorrect(result.expectedSemantic, result.semantic)){
+			if(!isValueCorrect(result.expectedSemantic, result.semantic)&&ProduceExcel.IS_CMP_SEMANTIC){
 				semanticCellrow.setCellStyle(cellStyle);
 				cmpResult = false;
 			}
-			
-			row.createCell(7).setCellValue(result.expectedIntent);
-			XSSFCell changhongIntentCell = row.createCell(8);
+			if(ProduceExcel.IS_CMP_INTENT){
+				row.createCell(columnId++).setCellValue(result.expectedIntent);
+			}
+			XSSFCell changhongIntentCell = row.createCell(columnId++);
 			changhongIntentCell.setCellValue(result.changhongIntent);
 			
-			XSSFCell defaultIntentCell = row.createCell(9);
+			XSSFCell defaultIntentCell = row.createCell(columnId++);
 			defaultIntentCell.setCellValue(result.defaultIntent);
 			
-			XSSFCell userDefineIntent = row.createCell(10);
+			XSSFCell userDefineIntent = row.createCell(columnId++);
 			userDefineIntent.setCellValue(result.userDefineIntent);
 			
-			switch (ProduceExcel.CMPED_INTENT) {
-			case "udf":
-				if(!isValueCorrect(result.expectedIntent, result.userDefineIntent)){
-					userDefineIntent.setCellStyle(cellStyle);
-					cmpResult = false;
-				}
-				break;
-			
-			case "df":
-				if(!isValueCorrect(result.expectedIntent, result.defaultIntent)){
-					defaultIntentCell.setCellStyle(cellStyle);
-					cmpResult = false;
-				}
-				break;
+			if(ProduceExcel.IS_CMP_INTENT){
+				switch (ProduceExcel.CMPED_INTENT) {
+				case "udf":
+					if(!isValueCorrect(result.expectedIntent, result.userDefineIntent)){
+						userDefineIntent.setCellStyle(cellStyle);
+						cmpResult = false;
+					}
+					break;
 				
-			case "ch":
-			default:
-				if(!isValueCorrect(result.expectedIntent, result.changhongIntent)){
-					changhongIntentCell.setCellStyle(cellStyle);
-					cmpResult = false;
+				case "df":
+					if(!isValueCorrect(result.expectedIntent, result.defaultIntent)){
+						defaultIntentCell.setCellStyle(cellStyle);
+						cmpResult = false;
+					}
+					break;
+					
+				case "ch":
+				default:
+					if(!isValueCorrect(result.expectedIntent, result.changhongIntent)){
+						changhongIntentCell.setCellStyle(cellStyle);
+						cmpResult = false;
+					}
+					break;
 				}
-				break;
 			}
 			
-			row.createCell(11).setCellValue(result.timeConsumed);
-			row.createCell(12).setCellValue(result.originJson);
-			XSSFCell cmpCell = row.createCell(13);
+			row.createCell(columnId++).setCellValue(result.timeConsumed);
+			row.createCell(columnId++).setCellValue(result.originJson);
+			XSSFCell cmpCell = row.createCell(columnId++);
 			if(cmpResult){
 				cmpCell.setCellValue("Pass");
 				cmpCell.setCellStyle(correctStyle);
@@ -221,7 +256,9 @@ public class ExcelUtil {
 	
 	@SuppressWarnings({ "deprecation", "static-access" })
 	private String getValue(XSSFCell xssfRow) {
-		if (xssfRow.getCellType() == xssfRow.CELL_TYPE_BOOLEAN) {
+		if (xssfRow == null){
+			return null;
+		} else if (xssfRow.getCellType() == xssfRow.CELL_TYPE_BOOLEAN) {
 			return String.valueOf(xssfRow.getBooleanCellValue());
 		} else if (xssfRow.getCellType() == xssfRow.CELL_TYPE_NUMERIC) {
 			return String.valueOf(xssfRow.getNumericCellValue());
