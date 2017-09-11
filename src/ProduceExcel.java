@@ -236,6 +236,9 @@ class MyRunnable implements Runnable {
 			resultObj.question = input.question;
 			resultObj.expectedIntent = input.expectedIntent;
 			resultObj.originJson = result;
+			resultObj.udfScore = userDefaultScore;
+			resultObj.dfScore = defaultScore;
+			resultObj.chScore = changhongScore;
 
 			synchronized (results) {
 				results.add(resultObj);

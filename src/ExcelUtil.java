@@ -111,8 +111,11 @@ public class ExcelUtil {
 			row0.createCell(columnId++).setCellValue("期待Intent");
 		}
 		row0.createCell(columnId++).setCellValue("Intent");
+		row0.createCell(columnId++).setCellValue("Changhong Intent Score");
 		row0.createCell(columnId++).setCellValue("Default");
+		row0.createCell(columnId++).setCellValue("Default Intent Score");
 		row0.createCell(columnId++).setCellValue("User Define");
+		row0.createCell(columnId++).setCellValue("User Define Intent Score");
 		row0.createCell(columnId++).setCellValue("Time Consumed");
 		row0.createCell(columnId++).setCellValue("Origin Json");
 		row0.createCell(columnId++).setCellValue("Result");
@@ -161,11 +164,20 @@ public class ExcelUtil {
 			XSSFCell changhongIntentCell = row.createCell(columnId++);
 			changhongIntentCell.setCellValue(result.changhongIntent);
 			
+			XSSFCell changhongIntentScoreCell = row.createCell(columnId++);
+			changhongIntentScoreCell.setCellValue(result.chScore);
+			
 			XSSFCell defaultIntentCell = row.createCell(columnId++);
 			defaultIntentCell.setCellValue(result.defaultIntent);
 			
+			XSSFCell defaultIntentScoreCell = row.createCell(columnId++);
+			defaultIntentScoreCell.setCellValue(result.dfScore);
+			
 			XSSFCell userDefineIntent = row.createCell(columnId++);
 			userDefineIntent.setCellValue(result.userDefineIntent);
+			
+			XSSFCell udfIntentScoreCell = row.createCell(columnId++);
+			udfIntentScoreCell.setCellValue(result.udfScore);
 			
 			if(ProduceExcel.IS_CMP_INTENT){
 				switch (ProduceExcel.CMPED_INTENT) {

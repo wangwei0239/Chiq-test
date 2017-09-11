@@ -7,6 +7,9 @@ public class Result {
 		public String changhongIntent;
 		public String userDefineIntent;
 		public String defaultIntent;
+		public int chScore;
+		public int udfScore;
+		public int dfScore;
 		
 		public String question;
 		public String expectedIntent;
