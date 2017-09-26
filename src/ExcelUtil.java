@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -18,9 +16,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
 public class ExcelUtil {
@@ -254,10 +251,9 @@ public class ExcelUtil {
 			}
 			
 			if(isJson){
-				Gson gsonExpected = new GsonBuilder().create();
-				JsonElement elementExpected = gsonExpected.toJsonTree(expected);
-				Gson gsonRealValue = new GsonBuilder().create();
-				JsonElement elementRealValue = gsonExpected.toJsonTree(realValue);
+				JsonParser parser = new JsonParser();
+                JsonObject elementRealValue = (JsonObject) parser.parse(realValue);
+                JsonObject elementExpected = (JsonObject) parser.parse(expected);
 				return elementExpected.equals(elementRealValue);
 			}else {
 				return expected.equals(realValue);
