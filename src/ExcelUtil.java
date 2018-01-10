@@ -41,21 +41,25 @@ public class ExcelUtil {
 					XSSFCell expectedDomain = null;
 					XSSFCell expectedDataIntent = null;
 					XSSFCell expectedSemantic = null;
+					expectedIntent = xssfRow.getCell(columnId++);
+					expectedDomain = xssfRow.getCell(columnId++);
+					expectedDataIntent = xssfRow.getCell(columnId++);
+					expectedSemantic = xssfRow.getCell(columnId++);
 					
-					if(ProduceExcel.IS_CMP_DOMAIN){
-						expectedDomain = xssfRow.getCell(columnId++);
-					}
-					
-					if(ProduceExcel.IS_CMP_DATA_INTENT){
-						expectedDataIntent = xssfRow.getCell(columnId++);
-					}
-					if(ProduceExcel.IS_CMP_SEMANTIC){
-						expectedSemantic = xssfRow.getCell(columnId++);
-					}
-					
-					if(ProduceExcel.IS_CMP_INTENT){
-						expectedIntent = xssfRow.getCell(columnId++);
-					}
+//					if(ProduceExcel.IS_CMP_DOMAIN){
+//						expectedDomain = xssfRow.getCell(columnId++);
+//					}
+//					
+//					if(ProduceExcel.IS_CMP_DATA_INTENT){
+//						expectedDataIntent = xssfRow.getCell(columnId++);
+//					}
+//					if(ProduceExcel.IS_CMP_SEMANTIC){
+//						expectedSemantic = xssfRow.getCell(columnId++);
+//					}
+//					
+//					if(ProduceExcel.IS_CMP_INTENT){
+//						expectedIntent = xssfRow.getCell(columnId++);
+//					}
 					
 					Input input = new Input();
 					input.question = getValue(content);
@@ -259,6 +263,8 @@ public class ExcelUtil {
 				return expected.equals(realValue);
 			}
 		} catch (NullPointerException e) {
+			return expected == null;
+		}catch (Exception e) {
 			return expected == null;
 		}
 		
