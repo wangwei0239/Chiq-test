@@ -3,6 +3,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -149,7 +150,8 @@ class MyRunnable implements Runnable {
 		long timeConsumed = -1;
 		document.append("appid", ProduceExcel.APP_ID);// idc
 		document.append("cmd", "chat");
-		document.append("userid", ProduceExcel.USER_ID);
+//		document.append("userid", ProduceExcel.USER_ID);
+		document.append("userid", UUID.randomUUID().toString().subSequence(0, 5)+String.valueOf(System.currentTimeMillis()));
 		document.append("text", input.question);
 		if(!ProduceExcel.USE_CACHE){
 			document.append("nocache", "1");
