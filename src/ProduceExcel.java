@@ -28,12 +28,10 @@ public class ProduceExcel {
 	public static String APP_ID = "";
 	public static String USER_ID = "";
 	public static boolean USE_CACHE = false;
-	public static String CMPED_INTENT = "";
 	public static int NUM_OF_THREAD = 1;
 	public static boolean IS_CMP_INTENT = true;
 	public static boolean IS_CMP_DOMAIN = true;
 	public static boolean IS_CMP_SEMANTIC = true;
-	public static boolean IS_CMP_DATA_INTENT = true;
 
 	public static void main(String[] args) {
 		
@@ -44,11 +42,9 @@ public class ProduceExcel {
 		parser.addArgument("--appid").required(true).help("appid").metavar("");
 		parser.addArgument("--user_id").required(true).help("user id").metavar("");
 		parser.addArgument("--use_cache").required(true).type(Boolean.class).help("是否使用cache，使用为'true'，不是用为'false'").metavar("");
-		parser.addArgument("--cmped_intent").choices("udf","df","ch").setDefault("ch").help("需要对比的intent").metavar("");
 		parser.addArgument("--cmp_intent").type(Boolean.class).setDefault(false).help("是否对比intent").metavar("");
 		parser.addArgument("--cmp_domain").type(Boolean.class).setDefault(false).help("是否对比domain").metavar("");
 		parser.addArgument("--cmp_semantic").type(Boolean.class).setDefault(false).help("是否对比semantic").metavar("");
-		parser.addArgument("--cmp_data_intent").type(Boolean.class).setDefault(false).help("是否对比data里面的intent").metavar("");
 		parser.addArgument("--thread_num").type(Integer.class).help("线程数").setDefault(1).metavar("");
 		
 		Namespace namespace = null;
@@ -83,12 +79,10 @@ public class ProduceExcel {
 		APP_ID = namespace.getString("appid");
 		USER_ID = namespace.getString("user_id");
 		USE_CACHE = namespace.getBoolean("use_cache");
-		CMPED_INTENT = namespace.getString("cmped_intent");
 		NUM_OF_THREAD = namespace.getInt("thread_num");
 		IS_CMP_INTENT = namespace.getBoolean("cmp_intent");
 		IS_CMP_DOMAIN = namespace.getBoolean("cmp_domain");
 		IS_CMP_SEMANTIC = namespace.getBoolean("cmp_semantic");
-		IS_CMP_DATA_INTENT = namespace.getBoolean("cmp_data_intent");
 		
 
 		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(NUM_OF_THREAD);
@@ -120,15 +114,10 @@ public class ProduceExcel {
 class MyRunnable implements Runnable {
 
 	public static final String DATA = "data";
-	public static final String TYPE = "type";
-	public static final String CUSTOM_DATA = "customdata";
+	public static final String CONTENT = "content";
 	public static final String DOMAIN = "domain";
-	public static final String INTENT = "intent";
+	public static final String INTENT = "intention";
 	public static final String SEMANTIC = "semantic";
-	public static final String USER_DEFINE = "userDefine";
-	public static final String DEFAULT = "default";
-	public static final String CHANG_HONG = "changhong";
-	public static final String CATEGORY = "category";
 
 	private ArrayList<Result> results;
 	private Input input;
@@ -170,77 +159,28 @@ class MyRunnable implements Runnable {
 			timeConsumed = endTime - startTime;
 			System.out.println("Result:"+result);
 			JSONObject jsonObject = new JSONObject(result);
-			JSONArray datas = jsonObject.getJSONArray(DATA);
-			Iterator iterator = datas.iterator();
-			JSONObject customData = null;
-			while (iterator.hasNext()) {
-				JSONObject data = (JSONObject) iterator.next();
-				String type = data.getString(TYPE);
-				if (type.equals(CUSTOM_DATA)) {
-					customData = data;
-					break;
-				}
-			}
+			JSONObject data = jsonObject.getJSONObject(DATA);
 			String domain = null;
 			String intent = null;
 			String semantic =null;
-			if (customData != null) {
-				JSONObject innerJson = customData.getJSONObject(DATA);
-				domain = innerJson.getString(DOMAIN);
-				intent = innerJson.getString(INTENT);
+			if (data != null) {
+				domain = data.getString(DOMAIN);
+				intent = data.getString(INTENT);
+				JSONObject innerJson = data.getJSONObject(CONTENT);
 				semantic = innerJson.getJSONObject(SEMANTIC).toString();
-			}
-			JSONArray intents = jsonObject.getJSONArray(INTENT);
-			String changhongIntent = "";
-			String userDefineIntent = "";
-			String defaultIntent = "";
-			int changhongScore = 0;
-			int userDefaultScore = 0;
-			int defaultScore = 0;
-			Iterator intentIterator = intents.iterator();
-
-			while (intentIterator.hasNext()) {
-				JSONObject intentJson = (JSONObject) intentIterator.next();
-				String intentType = intentJson.getString(CATEGORY);
-				String value = intentJson.getString("value");
-				int score = intentJson.getInt("score");
-				String readableIntent = value;
-
-				if (intentType.equals(USER_DEFINE)) {
-					if(userDefaultScore < score){
-						userDefaultScore = score;
-						userDefineIntent = readableIntent;
-					}
-				} else if (intentType.equals(DEFAULT)) {
-					if(defaultScore < score){
-						defaultScore = score;
-						defaultIntent = readableIntent;
-					}
-				} else if (intentType.equals(CHANG_HONG)) {
-					if(changhongScore < score){
-						changhongScore = score;
-						changhongIntent = readableIntent;
-					}
-				}
 			}
 
 			Result resultObj = new Result();
 			resultObj.expectedDomain = input.expectedDomain;
-			resultObj.domain = domain;
-			resultObj.expectedDataInsideIntent = input.expectedDataInsideIntent;
-			resultObj.intent = intent;
+			resultObj.expectedIntent = input.expectedIntent;
 			resultObj.expectedSemantic = input.expectedSemantic;
+			resultObj.domain = domain;
+			resultObj.intent = intent;
 			resultObj.semantic = semantic;
-			resultObj.changhongIntent = changhongIntent;
-			resultObj.userDefineIntent = userDefineIntent;
-			resultObj.defaultIntent = defaultIntent;
+
 			resultObj.timeConsumed = timeConsumed;
 			resultObj.question = input.question;
-			resultObj.expectedIntent = input.expectedIntent;
 			resultObj.originJson = result;
-			resultObj.udfScore = userDefaultScore;
-			resultObj.dfScore = defaultScore;
-			resultObj.chScore = changhongScore;
 
 			synchronized (results) {
 				results.add(resultObj);
@@ -251,8 +191,7 @@ class MyRunnable implements Runnable {
 			Result resultObj = new Result();
 			resultObj.question = input.question;
 			resultObj.expectedIntent = input.expectedIntent;
-			resultObj.expectedDomain = input.expectedIntent;
-			resultObj.expectedDataInsideIntent = input.expectedDataInsideIntent;
+			resultObj.expectedDomain = input.expectedDomain;
 			resultObj.expectedSemantic = input.expectedSemantic;
 			if (result != null) {
 				resultObj.originJson = result;
