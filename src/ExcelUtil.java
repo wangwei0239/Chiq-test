@@ -39,33 +39,15 @@ public class ExcelUtil {
 					XSSFCell content = xssfRow.getCell(columnId++);
 					XSSFCell expectedIntent = null;
 					XSSFCell expectedDomain = null;
-					XSSFCell expectedDataIntent = null;
 					XSSFCell expectedSemantic = null;
-					expectedIntent = xssfRow.getCell(columnId++);
 					expectedDomain = xssfRow.getCell(columnId++);
-					expectedDataIntent = xssfRow.getCell(columnId++);
+					expectedIntent = xssfRow.getCell(columnId++);
 					expectedSemantic = xssfRow.getCell(columnId++);
-					
-//					if(ProduceExcel.IS_CMP_DOMAIN){
-//						expectedDomain = xssfRow.getCell(columnId++);
-//					}
-//					
-//					if(ProduceExcel.IS_CMP_DATA_INTENT){
-//						expectedDataIntent = xssfRow.getCell(columnId++);
-//					}
-//					if(ProduceExcel.IS_CMP_SEMANTIC){
-//						expectedSemantic = xssfRow.getCell(columnId++);
-//					}
-//					
-//					if(ProduceExcel.IS_CMP_INTENT){
-//						expectedIntent = xssfRow.getCell(columnId++);
-//					}
 					
 					Input input = new Input();
 					input.question = getValue(content);
 					input.expectedIntent = getValue(expectedIntent);
 					input.expectedDomain = getValue(expectedDomain);
-					input.expectedDataInsideIntent = getValue(expectedDataIntent);
 					input.expectedSemantic = getValue(expectedSemantic);
 					list.add(input);
 				} catch (NullPointerException e) {
@@ -100,10 +82,6 @@ public class ExcelUtil {
 			row0.createCell(columnId++).setCellValue("期待Domian");
 		}
 		row0.createCell(columnId++).setCellValue("Domian");
-		if(ProduceExcel.IS_CMP_DATA_INTENT){
-			row0.createCell(columnId++).setCellValue("期待Data Intent");
-		}
-		row0.createCell(columnId++).setCellValue("Data Intent");
 		if(ProduceExcel.IS_CMP_SEMANTIC){
 			row0.createCell(columnId++).setCellValue("期待Semantic");
 		}
@@ -112,11 +90,6 @@ public class ExcelUtil {
 			row0.createCell(columnId++).setCellValue("期待Intent");
 		}
 		row0.createCell(columnId++).setCellValue("Intent");
-		row0.createCell(columnId++).setCellValue("Changhong Intent Score");
-		row0.createCell(columnId++).setCellValue("Default");
-		row0.createCell(columnId++).setCellValue("Default Intent Score");
-		row0.createCell(columnId++).setCellValue("User Define");
-		row0.createCell(columnId++).setCellValue("User Define Intent Score");
 		row0.createCell(columnId++).setCellValue("Time Consumed");
 		row0.createCell(columnId++).setCellValue("Origin Json");
 		row0.createCell(columnId++).setCellValue("Result");
@@ -141,15 +114,6 @@ public class ExcelUtil {
 				domainCell.setCellStyle(cellStyle);
 				cmpResult = false;
 			}
-			if(ProduceExcel.IS_CMP_DATA_INTENT){
-				row.createCell(columnId++).setCellValue(result.expectedDataInsideIntent);
-			}
-			XSSFCell intentCell = row.createCell(columnId++);
-			intentCell.setCellValue(result.intent);
-			if(!isValueCorrect(result.expectedDataInsideIntent, result.intent)&&ProduceExcel.IS_CMP_DATA_INTENT){
-				intentCell.setCellStyle(cellStyle);
-				cmpResult = false;
-			}
 			if(ProduceExcel.IS_CMP_SEMANTIC){
 				row.createCell(columnId++).setCellValue(result.expectedSemantic);
 			}
@@ -162,48 +126,12 @@ public class ExcelUtil {
 			if(ProduceExcel.IS_CMP_INTENT){
 				row.createCell(columnId++).setCellValue(result.expectedIntent);
 			}
-			XSSFCell changhongIntentCell = row.createCell(columnId++);
-			changhongIntentCell.setCellValue(result.changhongIntent);
+			XSSFCell intentCell = row.createCell(columnId++);
+			intentCell.setCellValue(result.intent);
 			
-			XSSFCell changhongIntentScoreCell = row.createCell(columnId++);
-			changhongIntentScoreCell.setCellValue(result.chScore);
-			
-			XSSFCell defaultIntentCell = row.createCell(columnId++);
-			defaultIntentCell.setCellValue(result.defaultIntent);
-			
-			XSSFCell defaultIntentScoreCell = row.createCell(columnId++);
-			defaultIntentScoreCell.setCellValue(result.dfScore);
-			
-			XSSFCell userDefineIntent = row.createCell(columnId++);
-			userDefineIntent.setCellValue(result.userDefineIntent);
-			
-			XSSFCell udfIntentScoreCell = row.createCell(columnId++);
-			udfIntentScoreCell.setCellValue(result.udfScore);
-			
-			if(ProduceExcel.IS_CMP_INTENT){
-				switch (ProduceExcel.CMPED_INTENT) {
-				case "udf":
-					if(!isValueCorrect(result.expectedIntent, result.userDefineIntent)){
-						userDefineIntent.setCellStyle(cellStyle);
-						cmpResult = false;
-					}
-					break;
-				
-				case "df":
-					if(!isValueCorrect(result.expectedIntent, result.defaultIntent)){
-						defaultIntentCell.setCellStyle(cellStyle);
-						cmpResult = false;
-					}
-					break;
-					
-				case "ch":
-				default:
-					if(!isValueCorrect(result.expectedIntent, result.changhongIntent)){
-						changhongIntentCell.setCellStyle(cellStyle);
-						cmpResult = false;
-					}
-					break;
-				}
+			if(!isValueCorrect(result.expectedIntent, result.intent)&&ProduceExcel.IS_CMP_INTENT){
+				intentCell.setCellStyle(cellStyle);
+				cmpResult = false;
 			}
 			
 			row.createCell(columnId++).setCellValue(result.timeConsumed);
